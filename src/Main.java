@@ -1,17 +1,41 @@
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
+import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Enter with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        int numWorkers = 3;
+        int numCallQueues = 3;
+        int queueCapacity = 5;
+        int numCallers = 25;
 
-        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
+        CallQueue[] callQueues = new CallQueue[numCallQueues];
+        for (int i = 0; i < numCallQueues; i++) {
+            callQueues[i] = new CallQueue(queueCapacity);
+        }
 
-            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Starting executor");
+
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+
+        for (int i = 0; i < numWorkers; i++) {
+            executor.execute(new Agent(i, callQueues[i], callQueues));
+        }
+
+        for (int i = 0; i < numCallers; i++) {
+            executor.execute(new Caller(i, callQueues));
+        }
+
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            // Wait for all threads to finish
         }
     }
 }

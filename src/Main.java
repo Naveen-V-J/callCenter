@@ -21,7 +21,7 @@ public class Main {
         }
 
         // Create an ExecutorService for managing worker and caller threads
-        ExecutorService executor = Executors.newFixedThreadPool(8);
+        ExecutorService executor = Executors.newFixedThreadPool(28);
 
         // Create and start worker threads
         for (int i = 0; i < numWorkers; i++) {

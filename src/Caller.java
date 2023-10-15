@@ -23,8 +23,13 @@ public class Caller implements Runnable {
      */
     @Override
     public void run() {
+        try {
+            Thread.sleep(random.nextInt(2000) + 200);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         int queueIndex = random.nextInt(callQueues.length);
-        Call call = new Call(callNumber, random.nextInt(1000) + 1000); // Random call duration
+        Call call = new Call(callNumber); // Random call duration
         callQueues[queueIndex].addCall(call);
     }
 }

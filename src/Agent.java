@@ -43,6 +43,7 @@ public class Agent implements Runnable {
         Event.WorkerChoosesQueue(agentID,this.queue.getQueueID());
 
         while (totalCallsHandled.get()<totalCalls) {
+
             if (queue.isEmpty()) {
                 // Steal the last call from another worker's queue
                 for (CallQueue otherQueue : queues) {
@@ -52,7 +53,6 @@ public class Agent implements Runnable {
                             continue;
                         }
                         Event.WorkerStealsCall(agentID,stolenCall.getCallID(),otherQueue.getQueueID());
-                        simulateCallDuration(stolenCall);
                         totalCallsHandled.incrementAndGet(); //Increment after completing a call
                         break;
                     }
@@ -63,24 +63,9 @@ public class Agent implements Runnable {
                     continue;
                 }
                 Event.WorkerAnswersCall(agentID,call.getCallID());
-                simulateCallDuration(call);
                 totalCallsHandled.incrementAndGet(); //Increment after completing a call
             }
         }
 
-    }
-
-    /**
-     * Simulates the duration of handling a call.
-     *
-     * @param call The Call object representing the call to be handled.
-     */
-    private void simulateCallDuration(Call call) {
-        int duration = call.getCallDuration();
-        try {
-            Thread.sleep(0);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

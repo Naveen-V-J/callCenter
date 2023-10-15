@@ -1,10 +1,10 @@
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CallQueue {
 
-    private final ArrayBlockingQueue<Call> queue; // Queue to hold incoming calls, BlockingQueue is used to ensure that the data structure is thread-safe and synchronized
+    private final LinkedBlockingDeque<Call> queue; // Queue to hold incoming calls, BlockingQueue is used to ensure that the data structure is thread-safe and synchronized
     private final ReentrantLock lock = new ReentrantLock(); // Lock for ensuring thread safety
     private Boolean hasWorker = false; // Flag to indicate if an agent is assigned to this queue
     private final char queueID;
@@ -15,7 +15,7 @@ public class CallQueue {
      * @param queueID  A unique identifier for the call queue.
      */
     public CallQueue(int capacity, char queueID) {
-        this.queue = new ArrayBlockingQueue<>(capacity);
+        this.queue = new LinkedBlockingDeque<>(capacity);
         this.queueID = queueID;
     }
 
@@ -40,13 +40,8 @@ public class CallQueue {
      * @return The Call object representing the call taken from the queue.
      */
     public Call takeCall() {
-        try {
-            Call call = queue.take();
-            return call;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
-        }
+        Call call = queue.pollFirst();
+        return call;
     }
 
     /**
@@ -65,20 +60,7 @@ public class CallQueue {
      */
     public Call getLastCallToArrive() {
 
-        long maxTimestamp = -1;
-        Call lastCall = null;
-
-        for (Call call : queue) {
-            if (call.getTimeStamp() > maxTimestamp) {
-                maxTimestamp = call.getTimeStamp();
-                lastCall = call;
-            }
-        }
-
-        if (lastCall != null) {
-            queue.remove(lastCall);
-        }
-
+        Call lastCall = queue.pollLast();
         return lastCall;
     }
 

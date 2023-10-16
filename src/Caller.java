@@ -18,8 +18,8 @@ public class Caller implements Runnable {
     }
 
     /**
-     * Randomly selects a CallQueue from callQueues then it creates a Call object and with a random call duration (
-     * between 1-2 seconds). This Call object is then added to the CallQueue using the addCall function CallQueue.
+     * Randomly selects a CallQueue from callQueues then it creates a Call object.
+     * This Call object is then added to the CallQueue using the addCall function CallQueue.
      */
     @Override
     public void run() {
@@ -29,7 +29,7 @@ public class Caller implements Runnable {
             Thread.currentThread().interrupt();
         }
         int queueIndex = random.nextInt(callQueues.length);
-        Call call = new Call(callNumber); // Random call duration
+        Call call = new Call(callNumber);
         callQueues[queueIndex].addCall(call);
     }
 }

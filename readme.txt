@@ -1,11 +1,40 @@
-In designing the call center simulation program, I have taken a structured and thread-safe approach to ensure the accurate representation of the call center's operation. The program comprises multiple classes, each serving a distinct role, and leverages Java's concurrent utilities to synchronize the concurrent actions of threads. Below is an overview of the classes and their responsibilities:
+Program 2
 
-Main class: The entry point of the program initializes and coordinates the worker and caller threads. It uses an ExecutorService to manage these threads and ensures a graceful termination when all calls have been answered.
+Approach:
+------------------
+The second program leverages the powerful features of `java.util.concurrent` to simplify thread management and synchronization. It follows the structure of the first program, however it uses high-level constructs like `ExecutorService`, `AtomicInteger`, `LinkedBlockingDeque`, and `ReentrantLock` to make syncrhonization simpler.
 
-Agent class: Represents the worker threads. Each worker chooses a call queue, answers calls in a FIFO manner, and steals the last call from another worker's queue when their queue is empty. The worker threads are synchronized using locks to ensure exclusive queue selection. A shared AtomicInteger is used by the class to keep track of the total number of calls handled by all agents collectively, ensuring that the program knows when all calls have been answered and can terminate gracefully.
+Classes and Roles:
+------------------
+1. Main Class:
+   - Serves as the entry point for the program.
+   - Manages the creation of worker (agent) threads, caller threads, and call queues.
+   - Utilizes an `ExecutorService` to simplify thread management and ensure graceful termination.
 
-Caller class: Represents the caller threads. These threads generate calls and append them to randomly selected call queues. Each caller adds calls to the call queues, simulating real-time call arrivals.
+2. Agent Class:
+   - Represents worker (agent) threads responsible for handling calls.
+   - Randomly selects a call queue to service.
+   - Handles calls in a FIFO manner and can steal calls from other queues when their own is empty.
+   - Utilizes an `AtomicInteger` to track the total number of calls handled and finish when all calls are answered.
 
-CallQueue class: Represents the call queues. It uses an ArrayBlockingQueue to store incoming calls, ensuring thread-safe access. The selectQueue method uses ReentrantLock ensures that only one worker selects a queue to prevent multiple workers from choosing the same queue. The class provides methods for adding and taking calls, checking if the queue is empty, and stealing the last call. Calls are added to the queue using the put() method, which blocks if the queue is full, ensuring synchronized and orderly addition of calls. Calls are taken from the queue using the take() method, which blocks if the queue is empty. This blocking behavior guarantees that agents cannot remove calls from an empty queue, maintaining synchronization in call handling. Furthermore. To facilitate call stealing by other agents all the current time stamp is set in added Call objects so that last call added to the queue can be retrieved by finding the Call with the largest time stamp.
+3. CallQueue Class:
+   - Represents call queues that utilize `LinkedBlockingDeque` for thread-safe storage of calls.
+   - Provides methods for adding, taking, and stealing calls.
+   - Uses a `ReentrantLock` to ensure that only one worker can select a queue at a time.
+   - Efficiently manages concurrency and thread safety.
 
-Call class: Represents individual calls with unique IDs and call durations. These objects are created by caller threads and added to call queues. It also has variable named 'timeStamp' to store the time stamp of when it was added to a queue, this value is set by the CallQueue class and is used to facilitate theft of calls.
+4. Caller Class:
+   - Represents caller threads responsible for generating calls.
+   - Randomly selects call queues and adds calls to them.
+
+5. Call Class:
+   - Represents a call with a ID.
+   - Created by a Caller
+
+Synchronization:
+------------------
+The program employs several mechanisms for synchronization:
+- The ExecutorService simplifies the management of worker and caller threads, ensuring they complete their tasks before program termination.
+- The AtomicInteger tracks the total number of calls handled by all agents, allowing for thread-safe increments without explicit synchronization.
+- LinkedBlockingDeque in the CallQueue class provides thread-safe storage for calls, ensuring proper synchronization for adding, taking, and stealing calls.
+- The ReentrantLock in the CallQueue class ensures that only one worker can select a queue at a time, avoiding contention and ensuring fairness.

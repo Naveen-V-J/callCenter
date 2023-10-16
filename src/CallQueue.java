@@ -26,7 +26,6 @@ public class CallQueue {
      */
     public void addCall(Call call) {
         try {
-            call.setTimeStamp(System.currentTimeMillis());
             queue.put(call);
             Event.CallAppendedToQueue(call.getCallID(),queueID);
         } catch (InterruptedException e) {
